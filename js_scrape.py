@@ -6,52 +6,55 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import pprint
 
-
+#scrap
 url = "http://index-of.es/Varios-2/"
 web_r = requests.get(url, headers={'user-agent': 'My app'})
 web_soup = BeautifulSoup(web_r.text, "html.parser")
-#
-# driver = webdriver.Firefox()
-# driver.get(url)
-#
-# html = driver.execute_script("return document.documentElement.outerHTML")
-#
-# sel_soup = BeautifulSoup(html, 'html.parser')
-# pdf = []
-#
-#
-# for i in sel_soup.findAll("a"):
-#     href = i["href"]
-#     pdf.append(href)
+driver = webdriver.Firefox()
+driver.get(url)
+html = driver.execute_script("return document.documentElement.outerHTML")
+sel_soup = BeautifulSoup(html, 'html.parser')
+file_list = []
+for i in sel_soup.findAll("a"):
+     href = i["href"]
+     file_list.append(href)
 
+#search and get files
 keywords_list = []
 check = ''
 while check == '':
     keyword = input("Type a keyword\n")
-    #next_keyword = 'y'
+    keywords_list.append(keyword)
     while True:
         next_keyword = input("Do You want to add another word? y/n\n")
         next_keyword = next_keyword.lower()
-        keywords_list.append(keyword)
         if next_keyword == "y": break
         elif next_keyword == "n":
             check = "break"
             break
         else: pass
 
+print(keywords_list)
+file_list = sorted(set(file_list))
+final_list = []
 
+for k in keywords_list:
+     for f in file_list:
+         if k in f:
+             print(f)
+             final_list.append(f)
 
+final_list = sorted(set(file_list))
+print(final_list)
 
+#download files
+current_path = os.getcwd()
 
-#print(pdf[23])
-pdf = sorted(set(pdf))
-
-#print(pdf(i))
-for i in pdf:
-    #print(i)
-    if 'Python' in i:
-        print(i)
-
+for f in final_list:
+     try:
+         file_name = os.path.basename(f)
+         file_r = requests.get(f, stream=True)
+         new_path = os.path.join(current_path, "images", file_name)
 #
 # iterations = 0
 #
