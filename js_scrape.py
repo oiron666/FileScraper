@@ -6,9 +6,13 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import pprint
 
-#scrap
-url = "http://index-of.es/Varios-2/"
+#scraping data
+url = input("Type URL\n")
+while url == None:
+    url = input("Type URL\n")
+
 web_r = requests.get(url, headers={'user-agent': 'My app'})
+url = "http://index-of.es/Varios-2/"
 web_soup = BeautifulSoup(web_r.text, "html.parser")
 driver = webdriver.Firefox()
 driver.get(url)
@@ -19,7 +23,10 @@ for i in sel_soup.findAll("a"):
      href = i["href"]
      file_list.append(href)
 
-#search and get files
+file_list = sorted(set(file_list))
+final_list = []
+
+#assigning keywords
 keywords_list = []
 check = ''
 while check == '':
@@ -35,9 +42,8 @@ while check == '':
         else: pass
 
 print(keywords_list)
-file_list = sorted(set(file_list))
-final_list = []
 
+#getting files containg keywords
 for k in keywords_list:
      for f in file_list:
          if k in f:
@@ -51,10 +57,15 @@ print(final_list)
 current_path = os.getcwd()
 
 for f in final_list:
-     try:
-         file_name = os.path.basename(f)
-         file_r = requests.get(f, stream=True)
-         new_path = os.path.join(current_path, "images", file_name)
+    try:
+        file_name = os.path.basename(f)
+        file_r = requests.get(f, stream=True)
+        new_path = os.path.join(current_path, "files", file_name)
+        with open(new_path, "wb") as output_file:
+            shutil.copyfileobj(file_r.raw, output_file)
+        del file_r
+    except: pass
+    time.sleep(5)
 #
 # iterations = 0
 #
